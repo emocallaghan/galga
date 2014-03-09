@@ -7,8 +7,12 @@ Created on Thu Mar  6 16:10:25 2014
 
 import pygame
 from pygame.locals import *
+import random
+import math
+import time
 
 class GalagaModel:
+    """ Encodes the game state of Galaga"""
     def __init__(self):
         self.fighter = Fighter()
         self.bullets =[]
@@ -30,6 +34,8 @@ class BasicEnemy:
     def __init__(self, x, y, vx, vy):
         self.x = x
         self.y = y
+        self.image = pygame.image.load("galgaBasicEnemyShip.jpg")
+        self.image.set.set_colorkey(get_at(0,0))
 
     def update():
         self.x += self.vx
@@ -40,8 +46,16 @@ class Fighter:
         self.lives(3)
         self.x = x
         self.y = y
+        self.image = pygame.image.load("galaga_ship.jpg")
+        self.image.set_colorkey(get_at(0,0))
+
+    
+    def update(self,x):
+        pass
+        
 
 class Bullet:
+    
     def __init__(self,color,height,width,x,y,vy):
         self.color = color
         self.height = height
@@ -54,7 +68,7 @@ class Bullet:
         self.y += self.vy
 
 class PyGameWindowView:
-    """ A view of brick breaker rendered in a Pygame window """
+    """ A view of Galaga rendered in a Pygame window """
     def __init__(self,model,screen):
         self.model = model
         self.screen = screen
@@ -72,13 +86,13 @@ class PyGameWindowView:
         pygame.display.update()
         
     def drawEnemy(basicEnemy):
-        print "draw enemy please"
+        screen.blit(basicEnemy.image,(basicEnemy.x,basicEnemy.y)) #blit the enemy image to the screen
         
     def drawBullet(bullet):
-        print "draw bullet please"
+        pygame.draw.rect(self)
         
     def drawFighter(fighter):
-        print "draw fighter please"
+        screen.blit(fighter.image,(fighter.x,fighter.y)) #blit the fighter image to the screen
 
 class PyGameKeyboardController:
     """ Handles keyboard input for brick breaker """
@@ -89,8 +103,8 @@ class PyGameKeyboardController:
         if event.type != KEYDOWN:
             return
         if event.key == pygame.K_a:
-            self.model.fighter.x += -1.0
+            self.model.fighter.x += -20.0
         if event.key == pygame.K_d:
-            self.model.fighter.x += 1.0
+            self.model.fighter.x += 20.0
         if event.key == pygame.K_SPACE:
             self.model.newBullet()    

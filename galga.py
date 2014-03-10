@@ -183,18 +183,23 @@ class CollisionController:
     def checkCollisions(self):
         fighter = self.model.fighter
         if (len(self.model.basicEnemies) == 0):
-            for x in range(0, 10):
-                basicEnemy = BasicEnemy(x+50*x+100, 350)
-                self.model.basicEnemies.append(basicEnemy)
-            self.collisionController.vy += .03
-            self.collisionController.bulletSpeed += .03
             if (self.collisionController.changeTime > 1):
                 self.collisionController.changeTime -= 1
-                self.collisionController.shootTime -=1
+                self.collisionController.shootTime -= 1
+            elif(self.collisionController.changeTime>.5):
+                self.collisionController.changeTime -= .5
+                self.collisionController.shootTime -= .5
             else:
                 print "You Won!"
                 print "Score:"
                 print self.model.score
+                return False
+            for x in range(0, 10):
+                basicEnemy = BasicEnemy(x+50*x+100, 350)
+                self.model.basicEnemies.append(basicEnemy)
+            self.collisionController.vy += .3
+            self.collisionController.bulletSpeed += .3
+            
             
 
             return True
@@ -275,7 +280,7 @@ if __name__ == '__main__':
     startTime = time.time()
     
     while running:
-        if (time.time() > startTime + enemyController.changeTime):  #if an enemy moved more than three seconds ago, moves next enemy
+        if (time.time() > startTime + enemyController.changeTime): #if an enemy moved more than three seconds ago, moves next enemy
             enemyController.moveEnemy()
             startTime = time.time()
         running = collisionController.checkCollisions()

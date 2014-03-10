@@ -32,17 +32,21 @@ class GalagaModel:
         self.fighter.update()
 
 class BasicEnemy:
-    def __init__(self, x, y, vx, vy):
+    def __init__(self, x, y, vx, vy,height,width,color):
         self.x = x
         self.y = y
-        self.image = pygame.image.load("galgaBasicEnemyShip.jpg")
-        self.image.set.set_colorkey(get_at(0,0))
+        self.height = height
+        self.width = width
+        self.color = (255,255,255)
+        #self.image = pygame.image.load("galgaBasicEnemyShip.jpg")
+        #self.image.set.set_colorkey(get_at(0,0))
 
     def update(self):
         self.x += self.vx
         self.y += self.vy
 
 class Fighter:
+
     def __init__(self, x, y):
         self.lives = 3
         self.x = x
@@ -61,7 +65,7 @@ class Fighter:
 class Bullet:
     
     def __init__(self,color,height,width,x,y,vy):
-        self.color = color
+        self.color = (255,0,0)
         self.height = height
         self.width = width
         self.x = x
@@ -88,7 +92,7 @@ class PyGameWindowView:
         self.drawFighter(fighter)
         
         pygame.display.update()
-        
+
     def drawEnemy(self, basicEnemy):
         screen.blit(basicEnemy.image,(basicEnemy.x,basicEnemy.y)) #blit the enemy image to the screen
         

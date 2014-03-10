@@ -31,23 +31,29 @@ class GalagaModel:
         self.fighter.update()
 
 class BasicEnemy:
-    def __init__(self, x, y, vx, vy):
+    def __init__(self, x, y, vx, vy,height,width,color):
         self.x = x
         self.y = y
-        self.image = pygame.image.load("galgaBasicEnemyShip.jpg")
-        self.image.set.set_colorkey(get_at(0,0))
+        self.height = height
+        self.width = width
+        self.color = (255,255,255)
+        #self.image = pygame.image.load("galgaBasicEnemyShip.jpg")
+        #self.image.set.set_colorkey(get_at(0,0))
 
     def update():
         self.x += self.vx
         self.y += self.vy
 
 class Fighter:
-    def __init__(self, x, y):
+    def __init__(self, x, y,height,width,color):
         self.lives(3)
         self.x = x
         self.y = y
-        self.image = pygame.image.load("galaga_ship.jpg")
-        self.image.set_colorkey(get_at(0,0))
+        self.width = width
+        self.height = height
+        self.color = (255,255,255)
+        #self.image = pygame.image.load("galaga_ship.jpg")
+        #self.image.set_colorkey(get_at(0,0))
 
     
     def update(self,x):
@@ -57,7 +63,7 @@ class Fighter:
 class Bullet:
     
     def __init__(self,color,height,width,x,y,vy):
-        self.color = color
+        self.color = (255,0,0)
         self.height = height
         self.width = width
         self.x = x
@@ -86,15 +92,17 @@ class PyGameWindowView:
         pygame.display.update()
         
     def drawEnemy(basicEnemy):
-        screen.blit(basicEnemy.image,(basicEnemy.x,basicEnemy.y)) #blit the enemy image to the screen
+        #screen.blit(basicEnemy.image,(basicEnemy.x,basicEnemy.y)) #blit the enemy image to the screen
+        pygame.draw.rect(self.screen, pygame.Color(basicEnemy.color[0],basicEnemy.color[1],basicEnemy[2]),pygame.Rect(basicEmeny.x, basicEnemy.y, basicEnemy.width, basicEnemy.height))
+        
         
     def drawBullet(bullet):
         pygame.draw.rect(self.screen, pygame.Color(bullet.color[0], bullet.color[1], bullet.color[2]), pygame.Rect(bullet.x, bullet.y, bullet.width, bullet.height))
         
     def drawFighter(fighter):
-        fighter.image = pygame.transform.smoothscale(fighter.image, (40,60), DestSurface = None)
-        screen.blit(fighter.image,(fighter.x,fighter.y)) #blit the fighter image to the screen
-        
+        #fighter.image = pygame.transform.smoothscale(fighter.image, (40,60), DestSurface = None)
+        #screen.blit(fighter.image,(fighter.x,fighter.y)) #blit the fighter image to the screen
+        pygame.draw.rect(self.screen, pygame.Color(fighter.color[0],fighter.color[1],fighter.color[2]), pygame.Rect(fighter.x, fighter.y, fighter.width, fighter.height))
 
 class PyGameKeyboardController:
     """ Handles keyboard input for brick breaker """

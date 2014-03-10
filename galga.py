@@ -14,14 +14,15 @@ import time
 class GalagaModel:
     """ Encodes the game state of Galaga"""
     def __init__(self):
-        self.fighter = Fighter()
-        self.bullets =[]
+        self.fighter = Fighter(350,680)
+        self.bullets = []
         self.basicEnemies = []
 
-    def newBullet():
-        self.bullets.append(Bullet())
+    def newBullet(self, x,y):
+        color = (255,0,0)
+        self.bullets.append(Bullet(color,10,5,x,y,-1))
         
-    def update():
+    def update(self):
         for basicEnemy in self.basicEnemies:
             basicEnemy.update()
         
@@ -37,21 +38,24 @@ class BasicEnemy:
         self.image = pygame.image.load("galgaBasicEnemyShip.jpg")
         self.image.set.set_colorkey(get_at(0,0))
 
-    def update():
+    def update(self):
         self.x += self.vx
         self.y += self.vy
 
 class Fighter:
     def __init__(self, x, y):
-        self.lives(3)
+        self.lives = 3
         self.x = x
         self.y = y
+        self.color = (250,250,0)
+        self.height = 20
+        self.width = 10
+        #self.image = pygame.transform.smoothscale(pygame.image.load("galaga_ship.jpg"), (40,60), DestSurface = None)
         self.image = pygame.image.load("galaga_ship.jpg")
-        self.image.set_colorkey(get_at(0,0))
+        #self.image.set_colorkey(get_at(0,0))
 
-    
-    def update(self,x):
-        pass
+    def update(self):
+        return
         
 
 class Bullet:
@@ -64,7 +68,7 @@ class Bullet:
         self.y = y
         self.vy = vy
         
-    def update():
+    def update(self):
         self.y += self.vy
 
 class PyGameWindowView:
@@ -80,19 +84,23 @@ class PyGameWindowView:
             
         for bullet in self.model.bullets:
             self.drawBullet(bullet)
-
-        self.drawFighter(self.model.fighter)
+        fighter = self.model.fighter
+        self.drawFighter(fighter)
         
         pygame.display.update()
         
-    def drawEnemy(basicEnemy):
+    def drawEnemy(self, basicEnemy):
         screen.blit(basicEnemy.image,(basicEnemy.x,basicEnemy.y)) #blit the enemy image to the screen
         
-    def drawBullet(bullet):
-        pygame.draw.rect(self)
+    def drawBullet(self, bullet):
+        rectangle = pygame.Rect(bullet.x,bullet.y,bullet.width,bullet.height)
+        pygame.draw.rect(self.screen, bullet.color, rectangle)
+        #pygame.draw.rect(screen, bullet.color, (bullet.height, bullet.width))
         
-    def drawFighter(fighter):
-        screen.blit(fighter.image,(fighter.x,fighter.y)) #blit the fighter image to the screen
+    def drawFighter(self, fighter):
+        rectangle = pygame.Rect(fighter.x,fighter.y,fighter.width,fighter.height)
+        pygame.draw.rect(self.screen, fighter.color, rectangle)
+        #screen.blit(fighter.image,(fighter.x,fighter.y)) #blit the fighter image to the screen
 
 class PyGameKeyboardController:
     """ Handles keyboard input for brick breaker """
@@ -107,4 +115,32 @@ class PyGameKeyboardController:
         if event.key == pygame.K_d:
             self.model.fighter.x += 20.0
         if event.key == pygame.K_SPACE:
-            self.model.newBullet()    
+            x = self.model.fighter.x
+            y = self.model.fighter.y
+            model.newBullet(x,y)    
+            
+
+if __name__ == '__main__':
+    pygame.init()
+
+    size = (700,700)
+    screen = pygame.display.set_mode(size)
+
+    model = GalagaModel()
+    view = PyGameWindowView(model,screen)
+
+    KeyBoardcontroller = PyGameKeyboardController(model)
+
+    running = True
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                running = False
+            if event.type == KEYDOWN:
+                KeyBoardcontroller.handle_keyboard_event(event)
+        model.update()
+        view.draw()
+        time.sleep(.001)
+
+    pygame.quit()

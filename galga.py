@@ -18,6 +18,7 @@ class GalagaModel:
         self.myBullets = []
         self.enemyBullets = []
         self.basicEnemies = []
+        self.score = 0
         for x in range(0, 10):
             basicEnemy = BasicEnemy(x+50*x+100, 350)
             self.basicEnemies.append(basicEnemy)
@@ -34,7 +35,15 @@ class GalagaModel:
             
         for basicEnemy in self.basicEnemies:
             basicEnemy.update()
+            if (basicEnemy.y > 700):
+                basicEnemy.y = 0
         self.fighter.update()
+        
+    def shoot(self, enemy):
+        color = (255, 255, 255)
+        bullet = Bullet(color, 15,5,enemy.x+enemy.width/2,enemy.y+enemy.height,.75)
+        self.enemyBullets.append(bullet)
+        enemy.lastShootTime = time.time()
 
 class BasicEnemy:
     def __init__(self, x, y):
@@ -46,7 +55,7 @@ class BasicEnemy:
         self.vx = 0
         self.vy = 0
         self.image = pygame.image.load("galgaBasicEnemyShip.jpg")
-        #self.image.set.set_colorkey(get_at(0,0))
+        self.lastShootTime = time.time()
 
     def update(self):
         self.x += self.vx
@@ -55,16 +64,14 @@ class BasicEnemy:
 class Fighter:
 
     def __init__(self, x, y):
-        self.lives = 3
+        self.lives = 1
         self.x = x
         self.y = y
         self.vx = 0.0
         self.color = (250,250,0)
         self.height = 40
         self.width = 34
-        #self.image = pygame.transform.smoothscale(pygame.image.load("galaga_ship.jpg"), (40,60), DestSurface = None)
         self.image = pygame.image.load("galaga_ship.jpg")
-        #self.image.set_colorkey(get_at(0,0))
 
     def update(self):
         if (self.x == 0 and self.vx < 0):
@@ -77,7 +84,7 @@ class Fighter:
 class Bullet:
     
     def __init__(self,color,height,width,x,y,vy):
-        self.color = (255,0,0)
+        self.color = color
         self.height = height
         self.width = width
         self.x = x
@@ -108,19 +115,14 @@ class PyGameWindowView:
         pygame.display.update()
 
     def drawEnemy(self, basicEnemy):
-        screen.blit(basicEnemy.image,(basicEnemy.x,basicEnemy.y)) #blit the enemy image to the screen
-        #rectangle = pygame.Rect(basicEnemy.x,basicEnemy.y,basicEnemy.width,basicEnemy.height)
-        #pygame.draw.rect(self.screen, basicEnemy.color, rectangle)
+        screen.blit(basicEnemy.image,(basicEnemy.x,basicEnemy.y))
         
     def drawBullet(self, bullet):
         rectangle = pygame.Rect(bullet.x,bullet.y,bullet.width,bullet.height)
         pygame.draw.rect(self.screen, bullet.color, rectangle)
-        #pygame.draw.rect(screen, bullet.color, (bullet.height, bullet.width))
         
     def drawFighter(self, fighter):
-        #rectangle = pygame.Rect(fighter.x,fighter.y,fighter.width,fighter.height)
-        #pygame.draw.rect(self.screen, fighter.color, rectangle)
-        screen.blit(fighter.image,(fighter.x,fighter.y)) #blit the fighter image to the screen
+        screen.blit(fighter.image,(fighter.x,fighter.y))
 
 class PyGameKeyboardController:
     """ Handles keyboard input for brick breaker """
@@ -151,27 +153,52 @@ class CollisionController:
 
     def checkCollisions(self):
         fighter = self.model.fighter
+        if (len(self.model.basicEnemies) == 0):
+            print "Game Over! You Won"
+            print "Score: "
+            print self.model.score
+            return False
         for basicEnemy in self.model.basicEnemies:
             for bullet in self.model.myBullets:
-                if (self.sameSpace(bullet.x, bullet.y, basicEnemy.x, basicEnemy.y, basicEnemy.width, basicEnemy.height)):              
+                if (self.sameSpace(bullet.x, bullet.y, bullet.width, bullet.height, basicEnemy.x, basicEnemy.y, basicEnemy.width, basicEnemy.height)):              
                     self.model.myBullets.remove(bullet)
                     self.model.basicEnemies.remove(basicEnemy)
-            if (self.sameSpace(fighter.x, fighter.y, basicEnemy.x, basicEnemy.y, basicEnemy.width, basicEnemy.height)):
-                self.modle.basicEnemies.remove(basicEnemy)
-                self.modle.fighter.lives += -1
+                    self.model.score += 10
+            if (self.sameSpace(fighter.x, fighter.y, fighter.width, fighter.height, basicEnemy.x, basicEnemy.y, basicEnemy.width, basicEnemy.height)):
+                self.model.basicEnemies.remove(basicEnemy)
+                self.model.fighter.lives += -1
                 if (self.model.fighter.lives == 0):
-                    print "game over"
+                    print "Game Over You Died"
+                    print "Score:"
+                    print self.model.score
+                    return False
         for bullet in self.model.enemyBullets:
-            if (self.sameSpace(bullet.x, bullet.y, fighter.x, fighter.y, fighter.width, fighter.height)):              
+            if (self.sameSpace(bullet.x, bullet.y, bullet. width, bullet.height, fighter.x, fighter.y, fighter.width, fighter.height)):              
                 self.model.enemyBullets.remove(bullet)
-                self.modle.fighter.lives += -1
+                self.model.fighter.lives += -1
                 if (self.model.fighter.lives == 0):
-                    print "game over"           
+                    print "Game Over You Died"
+                    print "Score:"
+                    print self.model.score
+                    return False
+        return True
     
-    def sameSpace(self, x1, y1, x2, y2, width, height):
-        return (x2<= x1 and x2+width>= x1 and y2 <= y1 and y2+height >= y1)
+    def sameSpace(self, x1, y1, width1, height1, x2, y2, width2, height2):
+        return (x2<= x1+width1 and x2+width2>= x1 and y2 <= y1+height2 and y2+height2 >= y1)
         
-            
+class EnemyController:
+    def __init__(self, model):
+        self.model = model
+
+    def moveEnemy(self):
+        for enemy in self.model.basicEnemies:
+            if (enemy.vy == 0):
+                enemy.vy = .5
+                return
+    def shouldShoot(self):
+        for enemy in self.model.basicEnemies:
+            if(not enemy.vy == 0 and time.time()>enemy.lastShootTime +2):
+                self.model.shoot(enemy)
         
 if __name__ == '__main__':
     pygame.init()
@@ -184,15 +211,21 @@ if __name__ == '__main__':
 
     KeyBoardcontroller = PyGameKeyboardController(model)
     collisionController = CollisionController(model)
-    
+    enemyController = EnemyController(model)
     running = True
-
+    
+    startTime = time.time()
+    
     while running:
+        if (time.time() > startTime+3):
+            enemyController.moveEnemy()
+            startTime = time.time()
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
             KeyBoardcontroller.handle_keyboard_event(event)
-        collisionController.checkCollisions()
+        running = collisionController.checkCollisions()
+        enemyController.shouldShoot()
         model.update()
         view.draw()
         time.sleep(.001)

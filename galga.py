@@ -92,7 +92,9 @@ class PyGameWindowView:
         pygame.draw.rect(self.screen, pygame.Color(bullet.color[0], bullet.color[1], bullet.color[2]), pygame.Rect(bullet.x, bullet.y, bullet.width, bullet.height))
         
     def drawFighter(fighter):
+        fighter.image = pygame.transform.smoothscale(fighter.image, (40,60), DestSurface = None)
         screen.blit(fighter.image,(fighter.x,fighter.y)) #blit the fighter image to the screen
+        
 
 class PyGameKeyboardController:
     """ Handles keyboard input for brick breaker """

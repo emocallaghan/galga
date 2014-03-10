@@ -176,9 +176,9 @@ class PyGameKeyboardController:
 
 class CollisionController:
     """tests if any two objects colloide"""
-    def __init__(self, model, collisionController):
+    def __init__(self, model, enemyController):
         self.model = model
-        self.collisionController = collisionController
+        self.enemyController = enemyController
 
     def checkCollisions(self):
         fighter = self.model.fighter
@@ -187,12 +187,12 @@ class CollisionController:
             for bullet in self.model.myBullets:
                 self.model.myBullets.remove(bullet)
             fighter.x = 350-7
-            if (self.collisionController.changeTime > 1):
-                self.collisionController.changeTime -= 1
-                self.collisionController.shootTime -= 1
-            elif(self.collisionController.changeTime>.5):
-                self.collisionController.changeTime -= .5
-                self.collisionController.shootTime -= .5
+            if (self.enemyController.changeTime > 1):
+                self.enemyController.changeTime -= 1
+                self.enemyController.shootTime -= 1
+            elif(self.enemyController.changeTime>.5):
+                self.enemyController.changeTime -= .5
+                self.enemyController.shootTime -= .5
             else:
                 print "You Won!"
                 print "Score:"
@@ -201,8 +201,8 @@ class CollisionController:
             for x in range(0, 10):
                 basicEnemy = BasicEnemy(x+50*x+100, 350)
                 self.model.basicEnemies.append(basicEnemy)
-            self.collisionController.vy += .3
-            self.collisionController.bulletSpeed += .4
+            self.enemyController.vy += .3
+            self.enemyController.bulletSpeed += .4
 
             return True
         for basicEnemy in self.model.basicEnemies:
@@ -213,6 +213,7 @@ class CollisionController:
                     self.model.myBullets.remove(bullet)
                     self.model.basicEnemies.remove(basicEnemy)
                     self.model.score += 10
+                    self.enemyController.moveNewEnemy
             if (self.sameSpace(fighter.x, fighter.y, fighter.width, fighter.height, basicEnemy.x, basicEnemy.y, basicEnemy.width, basicEnemy.height)):
                 """checks if the fighter is in the same place as any of the basic enemies and removes the enemy and takes away a life from the 
                     fighter if this is the case. if the fighter has no more lifes closes window and prints that the player 

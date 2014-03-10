@@ -89,7 +89,7 @@ class PyGameWindowView:
         screen.blit(basicEnemy.image,(basicEnemy.x,basicEnemy.y)) #blit the enemy image to the screen
         
     def drawBullet(bullet):
-        pygame.draw.rect(self)
+        pygame.draw.rect(self.screen, pygame.Color(bullet.color[0], bullet.color[1], bullet.color[2]), pygame.Rect(bullet.x, bullet.y, bullet.width, bullet.height))
         
     def drawFighter(fighter):
         screen.blit(fighter.image,(fighter.x,fighter.y)) #blit the fighter image to the screen

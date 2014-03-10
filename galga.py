@@ -183,6 +183,10 @@ class CollisionController:
     def checkCollisions(self):
         fighter = self.model.fighter
         if (len(self.model.basicEnemies) == 0):
+            print "Next Level"
+            for bullet in self.model.myBullets:
+                self.model.myBullets.remove(bullet)
+            fighter.x = 350-7
             if (self.collisionController.changeTime > 1):
                 self.collisionController.changeTime -= 1
                 self.collisionController.shootTime -= 1
@@ -198,9 +202,7 @@ class CollisionController:
                 basicEnemy = BasicEnemy(x+50*x+100, 350)
                 self.model.basicEnemies.append(basicEnemy)
             self.collisionController.vy += .3
-            self.collisionController.bulletSpeed += .3
-            
-            
+            self.collisionController.bulletSpeed += .4
 
             return True
         for basicEnemy in self.model.basicEnemies:
@@ -246,17 +248,26 @@ class EnemyController:
     def __init__(self, model):
         self.model = model
         self.vy = .5
+        self.vx = -.5
         self.changeTime = 3
         self.shootTime = 3
         self.bulletSpeed = .75
+        self.moveXTime = .5
 
     def moveEnemy(self):
         """checks if the an enemy is moving.  If not, starts it to move.
         If so it proceeds to the next one.  Returns once moves an enemy."""
         for enemy in self.model.basicEnemies:
+            if(not enemy.vy == 0):
+                enemy.vx = self.vx
+        
+    def moveNewEnemy(self):
+        for enemy in self.model.basicEnemies:
             if (enemy.vy == 0):
                 enemy.vy = self.vy
+                enemy.vx = self.vx
                 return
+                
     def shouldShoot(self):
         """shoots if the enemy is moving and if it shot more than two seconds ago shoots again."""
         for enemy in self.model.basicEnemies:
@@ -278,11 +289,17 @@ if __name__ == '__main__':
     running = True
     
     startTime = time.time()
+    xTime = time.time()
+    
     
     while running:
         if (time.time() > startTime + enemyController.changeTime): #if an enemy moved more than three seconds ago, moves next enemy
-            enemyController.moveEnemy()
+            enemyController.moveNewEnemy()
             startTime = time.time()
+        if (time.time() > xTime + enemyController.moveXTime):
+            enemyController.vx = -1*enemyController.vx
+            xTime = time.time()
+            enemyController.moveEnemy()
         running = collisionController.checkCollisions()
         for event in pygame.event.get():
             if event.type == QUIT:

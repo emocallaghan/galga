@@ -45,10 +45,10 @@ class GalagaModel:
                 basicEnemy.y = 0
         self.fighter.update()
         
-    def shoot(self, enemy):
+    def shoot(self, enemy, bulletSpeed):
         """creates a new bullet fired by an enemy from the middle of the enemy"""
         color = (255, 255, 255)
-        bullet = Bullet(color, 15,5,enemy.x+enemy.width/2,enemy.y+enemy.height,.75)
+        bullet = Bullet(color, 15,5,enemy.x+enemy.width/2,enemy.y+enemy.height,bulletSpeed)
         self.enemyBullets.append(bullet)
         enemy.lastShootTime = time.time()
 
@@ -176,18 +176,28 @@ class PyGameKeyboardController:
 
 class CollisionController:
     """tests if any two objects colloide"""
-    def __init__(self, model):
+    def __init__(self, model, collisionController):
         self.model = model
+        self.collisionController = collisionController
 
     def checkCollisions(self):
         fighter = self.model.fighter
         if (len(self.model.basicEnemies) == 0):
-            """if out of enemies the window closes and comand window prints score and that
-            user won"""
-            print "Game Over! You Won"
-            print "Score: "
-            print self.model.score
-            return False
+            for x in range(0, 10):
+                basicEnemy = BasicEnemy(x+50*x+100, 350)
+                self.model.basicEnemies.append(basicEnemy)
+            self.collisionController.vy += .03
+            self.collisionController.bulletSpeed += .03
+            if (self.collisionController.changeTime > 1):
+                self.collisionController.changeTime -= 1
+                self.collisionController.shootTime -=1
+            else:
+                print "You Won!"
+                print "Score:"
+                print self.model.score
+            
+
+            return True
         for basicEnemy in self.model.basicEnemies:
             for bullet in self.model.myBullets:
                 """checks if any bullets and enemies occupy the same space and removes them from the
@@ -230,19 +240,23 @@ class EnemyController:
     and should shoot function"""
     def __init__(self, model):
         self.model = model
+        self.vy = .5
+        self.changeTime = 3
+        self.shootTime = 3
+        self.bulletSpeed = .75
 
     def moveEnemy(self):
         """checks if the an enemy is moving.  If not, starts it to move.
         If so it proceeds to the next one.  Returns once moves an enemy."""
         for enemy in self.model.basicEnemies:
             if (enemy.vy == 0):
-                enemy.vy = .5
+                enemy.vy = self.vy
                 return
     def shouldShoot(self):
         """shoots if the enemy is moving and if it shot more than two seconds ago shoots again."""
         for enemy in self.model.basicEnemies:
-            if(not enemy.vy == 0 and time.time()>enemy.lastShootTime +2):
-                self.model.shoot(enemy)
+            if(not enemy.vy == 0 and time.time()>enemy.lastShootTime + self.shootTime):
+                self.model.shoot(enemy, self.bulletSpeed)
         
 if __name__ == '__main__':
     pygame.init()
@@ -254,14 +268,14 @@ if __name__ == '__main__':
     view = PyGameWindowView(model,screen)
 
     KeyBoardcontroller = PyGameKeyboardController(model)
-    collisionController = CollisionController(model)
     enemyController = EnemyController(model)
+    collisionController = CollisionController(model, enemyController)    
     running = True
     
     startTime = time.time()
     
     while running:
-        if (time.time() > startTime+3):  #if an enemy moved more than three seconds ago, moves next enemy
+        if (time.time() > startTime + enemyController.changeTime):  #if an enemy moved more than three seconds ago, moves next enemy
             enemyController.moveEnemy()
             startTime = time.time()
         running = collisionController.checkCollisions()
